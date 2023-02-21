@@ -27,3 +27,7 @@ remove_parenthesis <- function(x) {
   gsub("\\s*\\([^\\)]+\\)","",x) |>
     trimws()
 }
+
+coords_to_dec <- function(x, from) {
+  measurements::conv_unit(x, from = from, to = "dec_deg")
+}
