@@ -15,8 +15,8 @@ cols_stop <- function(x, cols) {
   }
 }
 
-raw_file_path <- function(filename, format, dir = "data/raw_data/") {
-  sprintf("%s%s.%s", dir, filename, format)
+raw_file_path <- function(dir, filename, format) {
+  sprintf("data/%s/%s.%s", dir, filename, format)
 }
 
 extract_parenthesis <- function(x) {

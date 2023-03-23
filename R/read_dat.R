@@ -1,4 +1,4 @@
-#' Import raw data from raw_data folder
+#' Import raw data
 #' 
 #' Function to import raw data from different formats from the raw_data
 #'
@@ -34,6 +34,12 @@ read_dat <- function(x=NULL, format=NULL, sheet=NULL) {
     },
     yml = {
       yaml::read_yaml(x)
+    },
+    csv = {
+      read.csv(x, check.names = FALSE, row.names = NULL)
+    },
+    csv2 = {
+      read.csv2(x, check.names = FALSE, row.names = NULL)
     }
   )
 }
