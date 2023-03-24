@@ -274,13 +274,14 @@ check_quality.values_unique_comb <- function(x=NULL, checked=NULL, refs = NULL, 
     # Write message for every line
     for(i in check) {
       # Get missing values
-      check_vals <- merge(x, unique_x[i,], by = refs)[,"diameter (µm)"]
-      miss_vals <- values[!values %in% check_vals]
-      cat(err_message(type=type, 
-                      checked=checked, 
+      check_vals <- merge(x, unique_x[i,], by = refs)
+      miss_vals <- values[!values %in% check_vals[,"diameter (µm)"]]
+      cat(err_message(type = type, 
+                      checked = checked, 
                       refs = refs, 
-                      values=miss_vals, 
-                      i=i))
+                      values = miss_vals, 
+                      i = i,
+                      df = check_vals))
     }
 
     # Close connection
@@ -288,41 +289,16 @@ check_quality.values_unique_comb <- function(x=NULL, checked=NULL, refs = NULL, 
 
   }
 
-  return(unlist(check))
+  check <- lapply(check, function(k) {
+    paste0("x[,'",refs,"'] %in% unique_x[k,'",refs,"']",
+                  collapse = " & ") |>
+      parse(text = _) |>
+        eval(expr = _) |>
+          which()
+  })
 
-}
+  return(unlist(unique(check)))
 
-
-#' @export
-#' @rdname check_quality
-check_latlon_na <- function(x=NULL, checked=NULL, metadat_file=NULL) {
-
-  nstop(x, "x")
-  nstop(checked, "checked")
-  nstop(metadat_file, "metadat_file")
-
-  # Check if columns are in the df
-  cols_stop(x, checked)
-
-  # Check if there is any NAs values
-  na_coords <- any(is.na(x[,checked]))
-
-  # Error message if there is any
-  if(na_coords) {
-    
-    # Which rows
-    rows <- which(is.na(x[,checked]))
-
-    # Send error message
-    logfile <- sprintf("log/%s.log", metadat_file$filename_raw)
-    cat(err_message(type = "latlon_na", checked = checked, i = rows),
-        file = logfile,
-        append = file.exists(logfile))
-    
-    return(rows)
-  }
-
-  return(NULL)
 }
 
 
@@ -363,7 +339,7 @@ type_of_check <- function(type) {
 }
 
 
-err_message <- function(type=NULL, checked=NULL, refs=NULL, values = NULL, i=NULL) {
+err_message <- function(type=NULL, checked=NULL, refs=NULL, values = NULL, i=NULL, df = NULL) {
   switch(
     type,
     both_zero_na = {
@@ -379,7 +355,10 @@ err_message <- function(type=NULL, checked=NULL, refs=NULL, values = NULL, i=NUL
       sprintf("Erreur sur les colonnes %s à la ligne %i: Ces colonnes ne devrait pas avoir une valeur de NA. \n\n", paste0(checked, collapse = ", "), i)
     },
     values_unique_comb = {
-      sprintf("Erreur sur la colonne %s à la ligne %i: Il manque les valeurs %s à la colonne %s pour la combinaison unique de %s. \n\n", checked, i, paste0(values, collapse = ", "), checked, paste0(refs, collapse = ", "))
+      sprintf("Erreur lors de check_quality.values_unique_comb sur la colonne %s: Il manque les valeurs %s pour la combinaison unique de %s. \n\n", 
+              checked,
+              paste0(values, collapse = ", "),
+              paste0(refs," = ",unique(df[,refs]), collapse = ", "))
     },
     smaller = {
       sprintf()
@@ -395,9 +374,6 @@ err_message <- function(type=NULL, checked=NULL, refs=NULL, values = NULL, i=NUL
     },
     inside_timespan = {
       sprintf()
-    },
-    latlon_na = {
-      sprintf("La %s a des valeurs NA aux lignes %s \n\n", checked, paste0(i, collapse = ", "))
     }
   )
 }
