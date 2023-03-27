@@ -9,7 +9,7 @@
 #' @return Dataframe with observations that passed the quality assessments
 #' @export
 
-quality_assessment <- function(raw_dat, metadat_quality = NULL, filename = NULL) {
+quality_assessments <- function(raw_dat, metadat_quality = NULL, filename = NULL) {
 
   # Make sure args are given
   nstop(raw_dat, "raw_dat")

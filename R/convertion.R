@@ -23,7 +23,7 @@ format_raw_dat <- function(raw_dat, metadat_convertion) {
   raw_dat <- format_coords(raw_dat, metadat_convertion)
 
   # Formatting colnames
-  raw_dat <- format_colnames(raw_dat, metadat_convertion)
+  raw_dat <- format_colnames(raw_dat)
 
   return(raw_dat)
 

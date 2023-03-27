@@ -5,6 +5,7 @@
 #' @param metadat_path The path to metadata file
 #'
 #' @return Saves curated data in specified folder
+#' @export
 
 curating <- function(metadat_path) {
 
