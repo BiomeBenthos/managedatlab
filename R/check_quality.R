@@ -2,11 +2,52 @@
 #' 
 #' Set of functions to check quality of raw data before they get converted to a .csv file. 
 #'
-#' @param x Dataframe to check
+#' @param raw_dat Dataframe. Dataset on which the quality assessments is performed
+#' @param metadat_quality A list of metadata quality assessments to perform on the dataset
+#' @param filename Filename of the raw dataset related to the metadata
+#' 
+#' @return Dataframe with observations that passed the quality assessments
+#' @export
+
+quality_assessment <- function(raw_dat, metadat_quality = NULL, filename = NULL) {
+
+  # Make sure args are given
+  nstop(raw_dat, "raw_dat")
+  nstop(metadat_quality, "metadat_quality")
+  nstop(filename, "filename")
+
+  # Run every quality assessments
+  # Return the rows that failed the test
+  checks <- lapply(names(metadat_quality), function(x) {
+
+    check_quality(raw_dat=raw_dat, 
+                  checked=metadat_quality[[x]][["checked"]], 
+                  refs=metadat_quality[[x]][["refs"]],
+                  values=unlist(metadat_quality[[x]][["values"]]),
+                  type=type_of_check(metadat_quality[[x]][["what"]]),
+                  filename = filename)
+
+  }) |>
+    unlist() |>
+      unique()
+
+  # Remove rows that failed the test
+  raw_dat <- raw_dat[-unique(checks),]
+
+  return(raw_dat)
+
+}
+
+
+#' Quality checks
+#' 
+#' Set of functions to check quality of raw data before they get converted to a .csv file. 
+#'
+#' @param raw_dat Dataframe. Dataset on which the quality assessment is performed
+#' @param filename Filename of the raw dataset related to the metadata
 #' @param checked A vector of the name(s) of column(s) whose quality is checked.
 #' @param refs A vector of the name(s) of the reference column(s) to which the checked_cols will be compared 
 #' @param type Type of quality check to be performed, either both_zero_na, na_refs, both_not_zero, not_na, smaller, bigger, equal, inside_bbox, inside_timespan
-#' @param metadat_file Metadata file related to the raw data that is checked
 #' 
 #' @section both_zero_na:
 #' 
@@ -30,35 +71,30 @@
 #' 
 #' 
 #' @return NULL or vector of integer representing the lines that contains error
-#' 
+
 
 check_quality <- function(type, ...) {
+  nstop("type", type)
   UseMethod("check_quality", type)
 }
 
-#' @export
-#' @rdname check_quality
-check_quality.default <- function(x=NULL, checked=NULL, refs=NULL, values=NULL, type=NULL,metadat_file=NULL, ...) {
-
-}
-
 
 #' @export
 #' @rdname check_quality
-check_quality.both_zero_na <- function(x=NULL, checked=NULL, type=type,metadat_file=NULL, ...) {
+check_quality.both_zero_na <- function(raw_dat=NULL, checked=NULL, type=type,filename=NULL, ...) {
 
   # Check arguments
-  nstop(x, "x")
+  nstop(raw_dat, "raw_dat")
   nstop(checked, "checked")
-  nstop(metadat_file, "metadat_file")
+  nstop(filename, "filename")
 
   # Check if columns are in the df
-  cols_stop(x, checked)
+  cols_stop(raw_dat, checked)
 
   # Check if any values are == 0
-  check <- sapply(1:nrow(x), function(y) {
+  check <- sapply(1:nrow(raw_dat), function(y) {
     # Line to check
-    tmp <- x[y,checked]
+    tmp <- raw_dat[y,checked]
     # Check if both are equal 0 or if both are > 0
     if(all(is.na(tmp))) return(NULL) # If all NAs
     cond <- all(tmp[!is.na(tmp)] == 0) | all(tmp[!is.na(tmp)] > 0)
@@ -71,7 +107,7 @@ check_quality.both_zero_na <- function(x=NULL, checked=NULL, type=type,metadat_f
   if(length(check) > 0) {
     
     # Drive R output to log file
-    logfile <- sprintf("log/%s.log", metadat_file$filename_raw)
+    logfile <- sprintf("log/%s.log", filename)
     sink(logfile, append = file.exists(logfile))
     
     # Write message for every line
@@ -90,23 +126,23 @@ check_quality.both_zero_na <- function(x=NULL, checked=NULL, type=type,metadat_f
 
 #' @export
 #' @rdname check_quality
-check_quality.na_refs <- function(x=NULL, checked=NULL, refs=NULL, type=type, metadat_file=NULL, ...) {
+check_quality.na_refs <- function(raw_dat=NULL, checked=NULL, refs=NULL, type=type, filename=NULL, ...) {
 
   # Check arguments
-  nstop(x, "x")
+  nstop(raw_dat, "raw_dat")
   nstop(checked, "checked")
   nstop(refs, "refs")
-  nstop(metadat_file, "metadat_file")
+  nstop(filename, "filename")
 
   # Check if columns are in the df
-  cols_stop(x, checked)
-  cols_stop(x, refs)
+  cols_stop(raw_dat, checked)
+  cols_stop(raw_dat, refs)
 
   # Check if any values are == 0
-  check <- sapply(1:nrow(x), function(y) {
+  check <- sapply(1:nrow(raw_dat), function(y) {
     
     # Line to check
-    tmp <- x[y,c(checked, refs)]
+    tmp <- raw_dat[y,c(checked, refs)]
     
     # Check if checked !is.na when all refs !is.na
     if(any(is.na(tmp[,refs])) & any(!is.na(tmp[,checked]))) return(y)
@@ -119,7 +155,7 @@ check_quality.na_refs <- function(x=NULL, checked=NULL, refs=NULL, type=type, me
   if(length(check) > 0) {
     
     # Drive R output to log file
-    logfile <- sprintf("log/%s.log", metadat_file$filename_raw)
+    logfile <- sprintf("log/%s.log", filename)
     sink(logfile, append = file.exists(logfile))
     
     # Write message for every line
@@ -138,23 +174,23 @@ check_quality.na_refs <- function(x=NULL, checked=NULL, refs=NULL, type=type, me
 
 #' @export
 #' @rdname check_quality
-check_quality.both_not_zero <- function(x=NULL, checked=NULL, refs=NULL, type=type, metadat_file=NULL, ...) {
+check_quality.both_not_zero <- function(raw_dat=NULL, checked=NULL, refs=NULL, type=type, filename=NULL, ...) {
 
   # Check arguments
-  nstop(x, "x")
+  nstop(raw_dat, "raw_dat")
   nstop(checked, "checked")
   nstop(refs, "refs")
-  nstop(metadat_file, "metadat_file")
+  nstop(filename, "filename")
 
   # Check if columns are in the df
-  cols_stop(x, checked)
-  cols_stop(x, refs)
+  cols_stop(raw_dat, checked)
+  cols_stop(raw_dat, refs)
 
   # Check if any values are == 0
-  check <- sapply(1:nrow(x), function(y) {
+  check <- sapply(1:nrow(raw_dat), function(y) {
     
     # Line to check
-    tmp <- x[y,c(checked, refs)]
+    tmp <- raw_dat[y,c(checked, refs)]
     
     # Check if checked !is.na when all refs !is.na
     if(all(tmp[,refs] != 0) & any(tmp[,checked] == 0 | is.na(tmp[,checked]))) return(y)
@@ -167,7 +203,7 @@ check_quality.both_not_zero <- function(x=NULL, checked=NULL, refs=NULL, type=ty
   if(length(check) > 0) {
     
     # Drive R output to log file
-    logfile <- sprintf("log/%s.log", metadat_file$filename_raw)
+    logfile <- sprintf("log/%s.log", filename)
     sink(logfile, append = file.exists(logfile))
     
     # Write message for every line
@@ -186,21 +222,21 @@ check_quality.both_not_zero <- function(x=NULL, checked=NULL, refs=NULL, type=ty
 
 #' @export
 #' @rdname check_quality
-check_quality.not_na <- function(x=NULL, checked=NULL, type=type, metadat_file=NULL, ...) {
+check_quality.not_na <- function(raw_dat=NULL, checked=NULL, type=type, filename=NULL, ...) {
 
   # Check arguments
-  nstop(x, "x")
+  nstop(raw_dat, "raw_dat")
   nstop(checked, "checked")
-  nstop(metadat_file, "metadat_file")
+  nstop(filename, "filename")
 
   # Check if columns are in the df
-  cols_stop(x, checked)
+  cols_stop(raw_dat, checked)
 
   # Check if any values are == 0
-  check <- sapply(1:nrow(x), function(y) {
+  check <- sapply(1:nrow(raw_dat), function(y) {
     
     # Line to check
-    tmp <- x[y,checked]
+    tmp <- raw_dat[y,checked]
     
     # Check if every column is not NA
     if(any(is.na(tmp))) return(y)
@@ -213,13 +249,13 @@ check_quality.not_na <- function(x=NULL, checked=NULL, type=type, metadat_file=N
   if(length(check) > 0) {
     
     # Drive R output to log file
-    logfile <- sprintf("log/%s.log", metadat_file$filename_raw)
+    logfile <- sprintf("log/%s.log", filename)
     sink(logfile, append = file.exists(logfile))
     
     # Write message for every line
     for(i in check) {
       # Get columns that are NAs
-      tmp <- x[check, checked]
+      tmp <- raw_dat[check, checked]
       na_cols <- colnames(tmp)[is.na(tmp)]
       cat(err_message(type=type, checked=na_cols, i=i))
     }
@@ -236,26 +272,26 @@ check_quality.not_na <- function(x=NULL, checked=NULL, type=type, metadat_file=N
 
 #' @export
 #' @rdname check_quality
-check_quality.values_unique_comb <- function(x=NULL, checked=NULL, refs = NULL, values = NULL, type=type, metadat_file=NULL, ...) {
+check_quality.values_unique_comb <- function(raw_dat=NULL, checked=NULL, refs = NULL, values = NULL, type=type, filename=NULL, ...) {
 
   # Check arguments
-  nstop(x, "x")
+  nstop(raw_dat, "raw_dat")
   nstop(checked, "checked")
   nstop(refs, "refs")
   nstop(values, "values")
-  nstop(metadat_file, "metadat_file")
+  nstop(filename, "filename")
 
   # Check if columns are in the df
-  cols_stop(x, checked)
-  cols_stop(x, refs)
+  cols_stop(raw_dat, checked)
+  cols_stop(raw_dat, refs)
 
   # Get unique combinaisons
-  unique_x <- unique(x[,refs])
+  unique_raw_dat <- unique(raw_dat[,refs])
 
   # Check if the unique combinaisons of "refs" has every "values" of "checked"
-  check <- sapply(1:nrow(unique_x), function(y) {
+  check <- sapply(1:nrow(unique_raw_dat), function(y) {
     # Values to check
-    check_vals <- merge(x, unique_x[y,], by = refs)[,"diameter (µm)"]
+    check_vals <- merge(raw_dat, unique_raw_dat[y,], by = refs)[,"diameter (µm)"]
     
     # Check if every column is not NA
     if(!all(values %in% check_vals)) return(y)
@@ -268,13 +304,13 @@ check_quality.values_unique_comb <- function(x=NULL, checked=NULL, refs = NULL, 
   if(length(check) > 0) {
     
     # Drive R output to log file
-    logfile <- sprintf("log/%s.log", metadat_file$filename_raw)
+    logfile <- sprintf("log/%s.log", filename)
     sink(logfile, append = file.exists(logfile))
     
     # Write message for every line
     for(i in check) {
       # Get missing values
-      check_vals <- merge(x, unique_x[i,], by = refs)
+      check_vals <- merge(raw_dat, unique_raw_dat[i,], by = refs)
       miss_vals <- values[!values %in% check_vals[,"diameter (µm)"]]
       cat(err_message(type = type, 
                       checked = checked, 
@@ -290,7 +326,7 @@ check_quality.values_unique_comb <- function(x=NULL, checked=NULL, refs = NULL, 
   }
 
   check <- lapply(check, function(k) {
-    paste0("x[,'",refs,"'] %in% unique_x[k,'",refs,"']",
+    paste0("raw_dat[,'",refs,"'] %in% unique_raw_dat[k,'",refs,"']",
                   collapse = " & ") |>
       parse(text = _) |>
         eval(expr = _) |>
