@@ -31,26 +31,3 @@ remove_parenthesis <- function(x) {
 coords_to_dec <- function(x, from) {
   measurements::conv_unit(x, from = from, to = "dec_deg")
 }
-
-make_unit_cols <- function(x=NULL, colname=NULL) {
-
-  # Check arguments
-  nstop(x, "x")
-  nstop(colname, "colname")
-
-  # Check if columns are in the df
-  cols_stop(x, colname)
-
-  # Extract unit
-  unit <- extract_parenthesis(colname)
-
-  # Replace colname without the parenthesis and the unit
-  new_colname <- remove_parenthesis(colname)
-  colnames(x)[colnames(x) == colname] <- new_colname
-
-  # Create new colnames for the unit
-  unit_cols <- sprintf("%s_unit",new_colname)
-  x[,unit_cols] <- unit
-
-  return(x)
-}

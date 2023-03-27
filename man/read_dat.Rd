@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_dat.R
 \name{read_dat}
 \alias{read_dat}
-\title{Import raw data from raw_data folder}
+\title{Import raw data}
 \usage{
 read_dat(x = NULL, format = NULL, sheet = NULL)
 }

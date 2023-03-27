@@ -2,9 +2,9 @@ Package: managedatbiomelab
 Title: Managing Data From Biome Lab
 Version: 0.0.0.9000
 Authors@R: 
-    person("Vincent", 
-           "Bellavance",
-           "Vincent.Bellavance.92@gmail.com",
+    person(given = "Vincent", 
+           family = "Bellavance",
+           email = "Vincent.Bellavance.92@gmail.com",
            role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3263-8784"))
 Description: A set of functions to manage data produced by Biome Lab (<link here>). It facilitates the implementation of a data workflow which includes quality check and standardization in order to merge multiple datasets on the same subject (e.g. benthic biodiversity, sediments, organic matter) into a single one for a specific purpose. Is also facilitate documentation of every datasets through .yml template.
@@ -15,3 +15,7 @@ RoxygenNote: 7.2.3
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Imports: 
+    measurements,
+    readxl,
+    yaml
