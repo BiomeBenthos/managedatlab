@@ -10,7 +10,7 @@
 #' @return NULL
 #'
 #' @export
-save_dat <- function(x=NULL, filename = NULL, fileformat = NULL, geom = NULL, crs = NULL) {
+save_dat <- function(x=NULL, filename = NULL, filedir = NULL, fileformat = NULL, geom = NULL, crs = NULL) {
 
   # Check arguments
   nstop(x, "x")
@@ -25,21 +25,26 @@ save_dat <- function(x=NULL, filename = NULL, fileformat = NULL, geom = NULL, cr
   # Save data depending on the output format
   switch(fileformat,
     csv = {
+      filepath <- sprintf("data/%s/%s.csv", filedir, filename)
       write.csv(raw_dat,
-                sprintf("data/curated/%s", metadat_file$clean_files_csv),
+                filepath,
                 row.names = FALSE)
     },
     csv2 = {
+      filepath <- sprintf("data/%s/%s.csv", filedir, filename)
       write.csv2(raw_dat,
-                 sprintf("data/curated/%s", metadat_file$clean_files_csv),
+                 filepath,
                  row.names = FALSE)
     },
     gpkg = {
       if(!"gpkg" %in% class(x)) {
+        nstop(geom, "geom")
+        nstop(crs, "crs")
         x <- terra::vect(x, geom = geom, crs = crs)
       }
+      filepath = sprintf("data/%s/%s.gpkg", filedir, filename)
       terra::writeVector(x, 
-                         filename = sprintf("data/curated/%s.gpkg", filename),
+                         filename = filepath,
                          filetype = fileformat,
                          overwrite = TRUE)
     }
