@@ -43,6 +43,7 @@ curating <- function(metadat_path) {
 
   save_dat(raw_dat, 
            metadat_file$filename_curated,
+           "curated",
            metadat_file$format_curated,
            geom = c("lon", "lat"),
            crs = "EPSG:4326")
