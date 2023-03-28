@@ -193,7 +193,7 @@ check_quality.both_not_zero <- function(raw_dat=NULL, checked=NULL, refs=NULL, t
     tmp <- raw_dat[y,c(checked, refs)]
     
     # Check if checked !is.na when all refs !is.na
-    if(all(tmp[,refs] != 0) & any(tmp[,checked] == 0 | is.na(tmp[,checked]))) return(y)
+    if(all(!tmp[,refs] %in% 0) & any(tmp[,checked] %in% 0 | is.na(tmp[,checked]))) return(y)
     return(NULL)
   
   }) |>

@@ -35,7 +35,7 @@ curating <- function(metadat_path) {
 
 
   #---------- CONVERTION OF DATA (UNITS, DATE, TIME, LAT/LON, COLS) ----------#
-
+  
   raw_dat <- format_raw_dat(raw_dat, metadat_convertion)
 
 
