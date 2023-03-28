@@ -37,7 +37,7 @@ save_dat <- function(x=NULL, filename = NULL, filedir = NULL, fileformat = NULL,
                  row.names = FALSE)
     },
     gpkg = {
-      if(!"gpkg" %in% class(x)) {
+      if(!"SpatVector" %in% class(x)) {
         nstop(geom, "geom")
         nstop(crs, "crs")
         x <- terra::vect(x, geom = geom, crs = crs)
