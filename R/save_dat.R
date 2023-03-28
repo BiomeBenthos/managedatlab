@@ -16,11 +16,6 @@ save_dat <- function(x=NULL, filename = NULL, filedir = NULL, fileformat = NULL,
   nstop(x, "x")
   nstop(filename, "filename")
   nstop(fileformat, "fileformat")
-  if(fileformat == "gpkg") {
-    nstop(geom, "geom")
-    nstop(crs, "crs")
-    cols_stop(x, geom)
-  }
 
   # Save data depending on the output format
   switch(fileformat,
@@ -40,6 +35,7 @@ save_dat <- function(x=NULL, filename = NULL, filedir = NULL, fileformat = NULL,
       if(!"SpatVector" %in% class(x)) {
         nstop(geom, "geom")
         nstop(crs, "crs")
+        cols_stop(x, geom)
         x <- terra::vect(x, geom = geom, crs = crs)
       }
       filepath = sprintf("data/%s/%s.gpkg", filedir, filename)
