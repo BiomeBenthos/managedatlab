@@ -9,7 +9,7 @@
 #' @return Dataframe with observations that passed the quality assessments
 #' @export
 
-quality_assessments <- function(raw_dat, metadat_quality = NULL, filename = NULL) {
+quality_assessments <- function(raw_dat, metadat_quality = NULL, filename = NULL, dir_log) {
 
   # Make sure args are given
   nstop(raw_dat, "raw_dat")
@@ -25,7 +25,8 @@ quality_assessments <- function(raw_dat, metadat_quality = NULL, filename = NULL
                   refs=metadat_quality[[x]][["refs"]],
                   values=unlist(metadat_quality[[x]][["values"]]),
                   type=type_of_check(metadat_quality[[x]][["what"]]),
-                  filename = filename)
+                  filename = filename,
+                  dir_log)
 
   }) |>
     unlist() |>
@@ -81,7 +82,7 @@ check_quality <- function(type, ...) {
 
 #' @export
 #' @rdname check_quality
-check_quality.both_zero_na <- function(raw_dat=NULL, checked=NULL, type=type,filename=NULL, ...) {
+check_quality.both_zero_na <- function(raw_dat=NULL, checked=NULL, type=type,filename=NULL, dir_log=NULL, ...) {
 
   # Check arguments
   nstop(raw_dat, "raw_dat")
@@ -107,7 +108,7 @@ check_quality.both_zero_na <- function(raw_dat=NULL, checked=NULL, type=type,fil
   if(length(check) > 0) {
     
     # Drive R output to log file
-    logfile <- sprintf("log/%s.log", filename)
+    logfile <- sprintf("%s/%s.log", dir_log, filename)
     sink(logfile, append = file.exists(logfile))
     
     # Write message for every line
@@ -126,7 +127,7 @@ check_quality.both_zero_na <- function(raw_dat=NULL, checked=NULL, type=type,fil
 
 #' @export
 #' @rdname check_quality
-check_quality.na_refs <- function(raw_dat=NULL, checked=NULL, refs=NULL, type=type, filename=NULL, ...) {
+check_quality.na_refs <- function(raw_dat=NULL, checked=NULL, refs=NULL, type=type, filename=NULL, dir_log=NULL, ...) {
 
   # Check arguments
   nstop(raw_dat, "raw_dat")
@@ -155,7 +156,7 @@ check_quality.na_refs <- function(raw_dat=NULL, checked=NULL, refs=NULL, type=ty
   if(length(check) > 0) {
     
     # Drive R output to log file
-    logfile <- sprintf("log/%s.log", filename)
+    logfile <- sprintf("%s/%s.log", dir_log, filename)
     sink(logfile, append = file.exists(logfile))
     
     # Write message for every line
@@ -174,7 +175,7 @@ check_quality.na_refs <- function(raw_dat=NULL, checked=NULL, refs=NULL, type=ty
 
 #' @export
 #' @rdname check_quality
-check_quality.both_not_zero <- function(raw_dat=NULL, checked=NULL, refs=NULL, type=type, filename=NULL, ...) {
+check_quality.both_not_zero <- function(raw_dat=NULL, checked=NULL, refs=NULL, type=type, filename=NULL, dir_log=NULL, ...) {
 
   # Check arguments
   nstop(raw_dat, "raw_dat")
@@ -203,7 +204,7 @@ check_quality.both_not_zero <- function(raw_dat=NULL, checked=NULL, refs=NULL, t
   if(length(check) > 0) {
     
     # Drive R output to log file
-    logfile <- sprintf("log/%s.log", filename)
+    logfile <- sprintf("%s/%s.log", dir_log, filename)
     sink(logfile, append = file.exists(logfile))
     
     # Write message for every line
@@ -222,7 +223,7 @@ check_quality.both_not_zero <- function(raw_dat=NULL, checked=NULL, refs=NULL, t
 
 #' @export
 #' @rdname check_quality
-check_quality.not_na <- function(raw_dat=NULL, checked=NULL, type=type, filename=NULL, ...) {
+check_quality.not_na <- function(raw_dat=NULL, checked=NULL, type=type, filename=NULL, dir_log=NULL, ...) {
 
   # Check arguments
   nstop(raw_dat, "raw_dat")
@@ -249,13 +250,13 @@ check_quality.not_na <- function(raw_dat=NULL, checked=NULL, type=type, filename
   if(length(check) > 0) {
     
     # Drive R output to log file
-    logfile <- sprintf("log/%s.log", filename)
+    logfile <- sprintf("%s/%s.log", dir_log, filename)
     sink(logfile, append = file.exists(logfile))
     
     # Write message for every line
     for(i in check) {
       # Get columns that are NAs
-      tmp <- raw_dat[check, checked]
+      tmp <- raw_dat[i, checked]
       na_cols <- colnames(tmp)[is.na(tmp)]
       cat(err_message(type=type, checked=na_cols, i=i))
     }
@@ -272,7 +273,7 @@ check_quality.not_na <- function(raw_dat=NULL, checked=NULL, type=type, filename
 
 #' @export
 #' @rdname check_quality
-check_quality.values_unique_comb <- function(raw_dat=NULL, checked=NULL, refs = NULL, values = NULL, type=type, filename=NULL, ...) {
+check_quality.values_unique_comb <- function(raw_dat=NULL, checked=NULL, refs = NULL, values = NULL, type=type, filename=NULL, dir_log=NULL, ...) {
 
   # Check arguments
   nstop(raw_dat, "raw_dat")
@@ -294,7 +295,7 @@ check_quality.values_unique_comb <- function(raw_dat=NULL, checked=NULL, refs = 
     check_vals <- merge(raw_dat, unique_raw_dat[y,], by = refs)[,"diameter (µm)"]
     
     # Check if every column is not NA
-    if(!all(values %in% check_vals)) return(y)
+    if(any(!values %in% check_vals)) return(y)
     return(NULL)
   
   }) |>
@@ -304,13 +305,14 @@ check_quality.values_unique_comb <- function(raw_dat=NULL, checked=NULL, refs = 
   if(length(check) > 0) {
     
     # Drive R output to log file
-    logfile <- sprintf("log/%s.log", filename)
+    logfile <- sprintf("%s/%s.log", dir_log, filename)
     sink(logfile, append = file.exists(logfile))
     
     # Write message for every line
     for(i in check) {
       # Get missing values
       check_vals <- merge(raw_dat, unique_raw_dat[i,], by = refs)
+      if(all(!values %in% check_vals[,"diameter (µm)"])) next
       miss_vals <- values[!values %in% check_vals[,"diameter (µm)"]]
       cat(err_message(type = type, 
                       checked = checked, 

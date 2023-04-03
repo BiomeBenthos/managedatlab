@@ -1,3 +1,4 @@
+#' @export 
 nstop <- function(x, arg=NULL) {
   if (is.null(x)) stop(sprintf("L'argument %s doit être spécifié!", arg), call. = FALSE)
 }
@@ -15,8 +16,8 @@ cols_stop <- function(x, cols) {
   }
 }
 
-raw_file_path <- function(dir, filename, format) {
-  sprintf("data/%s/%s.%s", dir, filename, format)
+data_file_path <- function(dir, filename, format) {
+  sprintf("%s/%s.%s", dir, filename, format)
 }
 
 extract_parenthesis <- function(x) {

@@ -4,7 +4,14 @@
 \alias{save_dat}
 \title{Save curated data in data/curated folder}
 \usage{
-save_dat(x = NULL, filename = NULL, fileformat = NULL, geom = NULL, crs = NULL)
+save_dat(
+  x = NULL,
+  filename = NULL,
+  filedir = NULL,
+  fileformat = NULL,
+  geom = NULL,
+  crs = NULL
+)
 }
 \arguments{
 \item{x}{(character) Name of the object to save}

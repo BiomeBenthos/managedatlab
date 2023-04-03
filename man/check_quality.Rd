@@ -16,6 +16,7 @@ check_quality(type, ...)
   checked = NULL,
   type = type,
   filename = NULL,
+  dir_log = NULL,
   ...
 )
 
@@ -25,6 +26,7 @@ check_quality(type, ...)
   refs = NULL,
   type = type,
   filename = NULL,
+  dir_log = NULL,
   ...
 )
 
@@ -34,6 +36,7 @@ check_quality(type, ...)
   refs = NULL,
   type = type,
   filename = NULL,
+  dir_log = NULL,
   ...
 )
 
@@ -42,6 +45,7 @@ check_quality(type, ...)
   checked = NULL,
   type = type,
   filename = NULL,
+  dir_log = NULL,
   ...
 )
 
@@ -52,6 +56,7 @@ check_quality(type, ...)
   values = NULL,
   type = type,
   filename = NULL,
+  dir_log = NULL,
   ...
 )
 }

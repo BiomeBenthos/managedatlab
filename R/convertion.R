@@ -34,6 +34,7 @@ make_unit_cols <- function(raw_dat, metadat_convertion) {
   
   # If unit of a measurement if given in the column name, create a column specifically for the unit of measurements
   if(metadat_convertion$units$make_unit_cols) {
+    colnames_no_parenthesis <- remove_parenthesis(colnames(raw_dat))
     for(i in metadat_convertion$units$units_cols) {
       
       # Check if columns are in the df
@@ -44,12 +45,15 @@ make_unit_cols <- function(raw_dat, metadat_convertion) {
 
       # Replace colname without the parenthesis and the unit
       new_colname <- remove_parenthesis(i)
+      if(length(which(colnames_no_parenthesis %in% new_colname)) > 1) {
+        colname_pos <- length(which(gsub("_[0-9]+", "", colnames(raw_dat)) %in% new_colname)) + 1
+        new_colname <- sprintf("%s_%i", new_colname, colname_pos)
+      }
       colnames(raw_dat)[colnames(raw_dat) == i] <- new_colname
 
       # Create new colnames for the unit
       unit_cols <- sprintf("%s_unit",new_colname)
       raw_dat[,unit_cols] <- unit
-      rm(list=c("unit", "new_colname", "unit_cols"))
     }
   }
   return(raw_dat)
@@ -105,6 +109,11 @@ format_coords <- function(raw_dat, metadat_convertion) {
       return(raw_dat[,x])
     })
   }
+  
+  if(metadat_convertion$coords$coords_crs$cols == "" & metadat_convertion$coords$coords_crs$crs != "") {
+    raw_dat[,"crs"] <- metadat_convertion$coords$coords_crs$crs
+  }
+
   return(raw_dat)
 }
 
@@ -116,4 +125,9 @@ format_colnames <- function(raw_dat) {
          x = _) |>
       tolower()
   return(raw_dat)
+}
+
+
+df_to_lines <- function(raw_dat, metadat_convertion) {
+  
 }

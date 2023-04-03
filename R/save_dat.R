@@ -20,14 +20,14 @@ save_dat <- function(x=NULL, filename = NULL, filedir = NULL, fileformat = NULL,
   # Save data depending on the output format
   switch(fileformat,
     csv = {
-      filepath <- sprintf("data/%s/%s.csv", filedir, filename)
-      write.csv(raw_dat,
+      filepath <- sprintf("%s/%s.csv", filedir, filename)
+      write.csv(x,
                 filepath,
-                row.names = FALSE)
+                row.names = FALSE)r <- rast(ncols=2, nrows=2)
     },
     csv2 = {
-      filepath <- sprintf("data/%s/%s.csv", filedir, filename)
-      write.csv2(raw_dat,
+      filepath <- sprintf("%s/%s.csv", filedir, filename)
+      write.csv2(x,
                  filepath,
                  row.names = FALSE)
     },
@@ -38,7 +38,7 @@ save_dat <- function(x=NULL, filename = NULL, filedir = NULL, fileformat = NULL,
         cols_stop(x, geom)
         x <- terra::vect(x, geom = geom, crs = crs)
       }
-      filepath = sprintf("data/%s/%s.gpkg", filedir, filename)
+      filepath = sprintf("%s/%s.gpkg", filedir, filename)
       terra::writeVector(x, 
                          filename = filepath,
                          filetype = fileformat,

@@ -4,7 +4,7 @@
 \alias{quality_assessments}
 \title{Quality checks}
 \usage{
-quality_assessments(raw_dat, metadat_quality = NULL, filename = NULL)
+quality_assessments(raw_dat, metadat_quality = NULL, filename = NULL, dir_log)
 }
 \arguments{
 \item{raw_dat}{Dataframe. Dataset on which the quality assessments is performed}
