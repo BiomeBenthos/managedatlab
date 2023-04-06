@@ -10,7 +10,7 @@
 #' @return NULL
 #'
 #' @export
-save_dat <- function(x=NULL, filename = NULL, filedir = NULL, fileformat = NULL, geom = NULL, crs = NULL) {
+save_dat <- function(x=NULL, filename = NULL, filedir = NULL, fileformat = NULL, lat = NULL, lon = NULL, geom_type = NULL, crs = NULL,...) {
 
   # Check arguments
   nstop(x, "x")
@@ -23,7 +23,7 @@ save_dat <- function(x=NULL, filename = NULL, filedir = NULL, fileformat = NULL,
       filepath <- sprintf("%s/%s.csv", filedir, filename)
       write.csv(x,
                 filepath,
-                row.names = FALSE)r <- rast(ncols=2, nrows=2)
+                row.names = FALSE)
     },
     csv2 = {
       filepath <- sprintf("%s/%s.csv", filedir, filename)
@@ -33,11 +33,24 @@ save_dat <- function(x=NULL, filename = NULL, filedir = NULL, fileformat = NULL,
     },
     gpkg = {
       if(!"SpatVector" %in% class(x)) {
-        nstop(geom, "geom")
+        
+        # Check arguments and columns
+        nstop(lon, "lon")
+        nstop(lat, "lat")
         nstop(crs, "crs")
-        cols_stop(x, geom)
-        x <- terra::vect(x, geom = geom, crs = crs)
+        nstop(geom_type, "geom_type")
+        cols_stop(x, lat)
+        cols_stop(x, lon)
+
+        # Convert to spatVector lines
+        if(geom_type == "lines") {
+          x <- df_to_lines(x, lat, lon, crs)
+        } else {
+          x <- terra::vect(x, geom = geom, crs = crs)
+        }
+
       }
+
       filepath = sprintf("%s/%s.gpkg", filedir, filename)
       terra::writeVector(x, 
                          filename = filepath,
