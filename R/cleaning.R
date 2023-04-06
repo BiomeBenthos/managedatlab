@@ -33,12 +33,31 @@ cleaning <- function(metadat, dir_input, dir_output, dir_log) {
 
   #---------- SAVE DATA IN THE FORMAT SPECIFIED IN metadat_file ----------#
 
+  # lat and lon columns
+  lat <- remove_parenthesis(metadat$convertion$coords$coords_cols$lat) |>
+    gsub(pattern = " ",
+         replacement = "_",
+         x = _) |>
+      tolower()
+  lon <- remove_parenthesis(metadat$convertion$coords$coords_cols$lon) |>
+    gsub(pattern = " ",
+         replacement = "_",
+         x = _) |>
+      tolower()
+
+  # If longitude is positive, transform it to negative
+  if(all(raw_dat[,c("long_start", "long_end")] > 0)) {
+    raw_dat[,c("long_start", "long_end")] * -1
+  }
+
+  # Simplify save_dat and deal with lat/lon columns that change
   save_dat(raw_dat, 
            metadat$files$filename_output,
            dir_output,
            metadat$files$format_output,
-           geom = c(metadat$convertion$coords$coords_cols$lon,
-                    metadat$convertion$coords$coords_cols$lat),
+           lat,
+           lon,
+           geom_type = metadat$convertion$coords$coords_type,
            crs = metadat$convertion$coords$coords_crs$crs)
 
 }

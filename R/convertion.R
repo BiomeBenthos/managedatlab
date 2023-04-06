@@ -106,6 +106,7 @@ format_coords <- function(raw_dat, metadat_convertion) {
       raw_dat[,x] <- measurements::conv_unit(raw_dat[,x],
                                              metadat_convertion$coords$coords_format,
                                              "dec_deg")
+      raw_dat[,x] <- as.numeric(raw_dat[,x])
       return(raw_dat[,x])
     })
   }
@@ -128,6 +129,32 @@ format_colnames <- function(raw_dat) {
 }
 
 
-df_to_lines <- function(raw_dat, metadat_convertion) {
+df_to_lines <- function(raw_dat, lat, lon, crs) {
+    
+  # If lat and lon don't have same length
+  if(length(lat) != length(lon)) stop()
+
+  # Make geom matrix
+  geom_mat <- lapply(1:nrow(raw_dat), function(x) {
+        
+    lapply(1:length(lat), function(y) {
+      tmp <- raw_dat[x,c(lon[y], lat[y])]
+      colnames(tmp) <- c("x", "y")
+      tmp["object"] <- x
+      return(tmp[,c("object", "x", "y")])
+    }) |>
+      do.call(what = rbind, args = _)
+
+  }) |>
+    do.call(what = rbind, args = _) |>
+      as.matrix()
   
+  # convert into spatVector lines and add data to spatVector object 
+  dat_atts <- raw_dat[, -which(colnames(raw_dat) %in% c(lat,lon))]
+  spatvector_lines <- terra::vect(geom_mat, 
+                                  type = "lines", 
+                                  atts = dat_atts,
+                                  crs = crs)
+
+  return(spatvector_lines)
 }
