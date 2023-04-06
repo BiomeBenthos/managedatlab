@@ -40,6 +40,12 @@ read_dat <- function(x=NULL, format=NULL, sheet=NULL) {
     },
     csv2 = {
       read.csv2(x, check.names = FALSE, row.names = NULL)
+    },
+    gpkg = {
+      terra::vect(x)
+    },
+    shp = {
+      terra::vect(x)
     }
   )
 }
