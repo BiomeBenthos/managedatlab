@@ -27,7 +27,7 @@ quality_assessment <- function(dat, assertions) {
   err_df <- dat[assertions$rows]
 
   return(list(output = output,
-              err_df = err_df
+              err_df = err_df,
               err_log = assertions_tests))
 
 }
