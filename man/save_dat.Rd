@@ -9,8 +9,11 @@ save_dat(
   filename = NULL,
   filedir = NULL,
   fileformat = NULL,
-  geom = NULL,
-  crs = NULL
+  lat = NULL,
+  lon = NULL,
+  geom_type = NULL,
+  crs = NULL,
+  ...
 )
 }
 \arguments{

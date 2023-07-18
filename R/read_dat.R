@@ -42,10 +42,13 @@ read_dat <- function(x=NULL, format=NULL, sheet=NULL) {
       read.csv2(x, check.names = FALSE, row.names = NULL)
     },
     gpkg = {
-      terra::vect(x)
+      sf::st_read(x)
     },
     shp = {
-      terra::vect(x)
+      sf::st_read(x)
+    },
+    geojson = {
+      sf::st_read(x)
     }
   )
 }
