@@ -23,7 +23,7 @@
 
 
 test_quality <- function(dat, assertions) {
-  
+  print(assertions)
   match.fun(assertions$fun)(x = dat[,assertions$pars$cols],
                             assertions$pars)
 
