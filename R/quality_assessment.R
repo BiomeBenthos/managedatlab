@@ -18,7 +18,7 @@ quality_assessment <- function(dat, assertions) {
   # Runs assertions test
   assertions_tests <- lapply(assertions, function(x) {
     test_quality(dat = dat,
-                 assertions = assertions)
+                 assertions = x)
   }) |>
     do.call(what = rbind, args = _) |>
       tidyr::spread(data = _, key = test, value = message)
