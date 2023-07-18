@@ -32,7 +32,7 @@ test_quality <- function(dat, assertions) {
 missing_vals <- function(x, ...) {
 
   # Unpacking ellipsis
-  list2env(..., envir = environment())
+  list2env(x = ..., envir = environment())
   nstop(na.strings, "na.strings")
   nstop(cols, "cols")
 
@@ -52,7 +52,7 @@ missing_vals <- function(x, ...) {
 vals_interval <- function(x, ...) {
 
   # Unpacking ellipsis
-  list2env(..., envir = environment())
+  list2env(x = ..., envir = environment())
   nstop(min_vals, "min_vals")
   nstop(max_vals, "max_vals")
   nstop(cols, "cols")
@@ -72,7 +72,7 @@ vals_interval <- function(x, ...) {
 vals_categ <- function(x, ...) {
 
   # Unpacking ellipsis
-  list2env(..., envir = environment())
+  list2env(x = ..., envir = environment())
   nstop(vals, "vals")
   nstop(cols, "cols")
 
@@ -92,7 +92,7 @@ vals_categ <- function(x, ...) {
 concat <- function(x, dat, ...) {
 
   # Unpacking ellipsis
-  list2env(..., envir = environment())
+  list2env(x = ..., envir = environment())
   nstop(concat_cols, "concat_cols")
   nstop(sep, "sep")
   nstop(cols, "cols")
@@ -113,7 +113,7 @@ concat <- function(x, dat, ...) {
 uniqueness <- function(x, ...) {
 
   # Unpacking ellipsis
-  list2env(..., envir = environment())
+  list2env(x = ..., envir = environment())
   nstop(cols, "cols")
 
   test_assert <- which(duplicated(x) | duplicated(x, fromLast=TRUE))
