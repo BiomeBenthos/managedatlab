@@ -2,7 +2,7 @@
 #' 
 #' 
 #'
-#' @param x Dataframe. Dataset on which the quality assessment is performed
+#' @param dat Dataframe. Dataset on which the quality assessment is performed
 #' @param assertions List. List of data quality assertions to test using quality_test.* functions. This list must include the test name, the column(s) on which to perform the test and extra parameters to use in the quality_test.* function. 
 #' 
 #' @return List of two dataframe. Output: rows that passed the assessment and Error: rows that failed at least one test.
@@ -24,8 +24,10 @@ quality_assessment <- function(dat, assertions) {
       tidyr::spread(data = _, key = test, value = message)
 
   output <- dat[-assertions$rows,]
+  err_df <- dat[assertions$rows]
 
   return(list(output = output,
-              error = assertions_tests))
+              err_df = err_df
+              err_log = assertions_tests))
 
 }
