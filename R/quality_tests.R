@@ -25,14 +25,15 @@
 test_quality <- function(dat, assertions) {
 
   match.fun(assertions$fun)(x = dat[,assertions$pars$cols],
-                            assertions$pars)
+                            dat = dat,
+                            pars = assertions$pars)
 
 }
 
-missing_vals <- function(x, ...) {
+missing_vals <- function(x, pars, ...) {
 
   # Unpacking ellipsis
-  list2env(x = ..., envir = environment())
+  list2env(x = pars, envir = environment())
   nstop(na.strings, "na.strings")
   nstop(cols, "cols")
 
@@ -43,16 +44,16 @@ missing_vals <- function(x, ...) {
   data.frame(
     rows = test_assert,
     test_name = test_name["missing_vals"],
-    err_message = err_message("missing_vals", ...),
+    err_message = err_message("missing_vals", pars),
     row.names = NULL
   )
 }
 
 
-vals_interval <- function(x, ...) {
+vals_interval <- function(x, pars, ...) {
 
   # Unpacking ellipsis
-  list2env(x = ..., envir = environment())
+  list2env(x = pars, envir = environment())
   nstop(min_vals, "min_vals")
   nstop(max_vals, "max_vals")
   nstop(cols, "cols")
@@ -64,15 +65,15 @@ vals_interval <- function(x, ...) {
   data.frame(
     rows = test_assert,
     test_name = test_name["vals_interval"],
-    err_message = err_message("vals_interval", ...),
+    err_message = err_message("vals_interval", pars),
     row.names = NULL
   )
 }
 
-vals_categ <- function(x, ...) {
+vals_categ <- function(x, pars, ...) {
 
   # Unpacking ellipsis
-  list2env(x = ..., envir = environment())
+  list2env(x = pars, envir = environment())
   nstop(vals, "vals")
   nstop(cols, "cols")
 
@@ -83,16 +84,16 @@ vals_categ <- function(x, ...) {
   data.frame(
     rows = test_assert,
     test_name = test_name["vals_categ"],
-    err_message = err_message("vals_categ", ...),
+    err_message = err_message("vals_categ", pars),
     row.names = NULL
   )
 }
 
 
-concat <- function(x, dat, ...) {
+concat <- function(x, dat, pars, ...) {
 
   # Unpacking ellipsis
-  list2env(x = ..., envir = environment())
+  list2env(x = pars, envir = environment())
   nstop(concat_cols, "concat_cols")
   nstop(sep, "sep")
   nstop(cols, "cols")
@@ -104,16 +105,16 @@ concat <- function(x, dat, ...) {
   data.frame(
     rows = test_assert,
     test_name = test_name["concat"],
-    err_message = err_message("concat", ...),
+    err_message = err_message("concat", pars),
     row.names = NULL
   )
 }
 
 
-uniqueness <- function(x, ...) {
+uniqueness <- function(x, pars, ...) {
 
   # Unpacking ellipsis
-  list2env(x = ..., envir = environment())
+  list2env(x = pars, envir = environment())
   nstop(cols, "cols")
 
   test_assert <- which(duplicated(x) | duplicated(x, fromLast=TRUE))
@@ -123,7 +124,7 @@ uniqueness <- function(x, ...) {
   data.frame(
     rows = test_assert,
     test_name = test_name["uniqueness"],
-    err_message = err_message("uniqueness", ...),
+    err_message = err_message("uniqueness", pars),
     row.names = NULL
   )
 }

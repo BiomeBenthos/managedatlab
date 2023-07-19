@@ -20,8 +20,17 @@ quality_assessment <- function(dat, assertions) {
     test_quality(dat = dat,
                  assertions = assertions[[x]])
   }) |>
-    do.call(what = rbind, args = _) |>
-      tidyr::spread(data = _, key = test_name, value = err_message)
+    do.call(what = rbind, args = _)
+
+  if(is.null(assertions_tests)) {
+    return(list(output = dat,
+                err_df = NULL,
+                err_log = NULL))
+  }
+  
+  assertions_tests <- tidyr::spread(data = assertions_tests, 
+                                    key = test_name, 
+                                    value = err_message)
 
   output <- dat[-assertions_tests$rows,]
   err_df <- dat[assertions_tests$rows,]
