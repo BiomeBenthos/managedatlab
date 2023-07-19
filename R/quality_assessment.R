@@ -16,15 +16,15 @@ quality_assessment <- function(dat, assertions) {
   nstop(assertions, "assertions")
 
   # Runs assertions test
-  assertions_tests <- lapply(assertions, function(x) {
+  assertions_tests <- lapply(1:length(assertions), function(x) {
     test_quality(dat = dat,
-                 assertions = x)
+                 assertions = assertions[[x]])
   }) |>
     do.call(what = rbind, args = _) |>
-      tidyr::spread(data = _, key = test, value = message)
+      tidyr::spread(data = _, key = test_name, value = err_message)
 
-  output <- dat[-assertions$rows,]
-  err_df <- dat[assertions$rows]
+  output <- dat[-assertions_tests$rows,]
+  err_df <- dat[assertions_tests$rows,]
 
   return(list(output = output,
               err_df = err_df,
