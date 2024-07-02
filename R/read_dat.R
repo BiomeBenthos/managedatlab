@@ -9,7 +9,7 @@
 #' @return data.frame or a list for metadata
 #'
 #' @export
-read_dat <- function(x=NULL, format=NULL, sheet=NULL) {
+read_dat <- function(x=NULL, format=NULL, sheet=NULL, ...) {
 
   # Check arguments
   nstop(x, "x")
@@ -36,10 +36,10 @@ read_dat <- function(x=NULL, format=NULL, sheet=NULL) {
       yaml::read_yaml(x)
     },
     csv = {
-      read.csv(x, check.names = FALSE, row.names = NULL)
+      read.csv(x, check.names = FALSE, row.names = NULL, ...)
     },
     csv2 = {
-      read.csv2(x, check.names = FALSE, row.names = NULL)
+      read.csv2(x, check.names = FALSE, row.names = NULL, ...)
     },
     gpkg = {
       sf::st_read(x)
